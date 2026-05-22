@@ -42,6 +42,9 @@ importers:
         specifier: ^6.0.1
         version: 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
     devDependencies:
+      '@types/node':
+        specifier: ^25.9.1
+        version: 25.9.1
       prisma:
         specifier: ^6.0.1
         version: 6.19.3(typescript@6.0.3)
