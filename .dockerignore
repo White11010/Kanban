@@ -1,0 +1,27 @@
+# Не отправляем в build-context — ускоряет docker build
+**/node_modules
+**/dist
+**/.turbo
+**/.cache
+**/coverage
+
+# Локальные секреты и тестовые env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Git и CI
+.git
+.github
+
+# IDE
+**/.vscode
+**/.idea
+**/.DS_Store
+**/Thumbs.db
+
+# Rust target (для будущего notification-service)
+**/target
+
+# Логи и временные файлы
+**/*.log
