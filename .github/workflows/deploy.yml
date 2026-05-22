@@ -36,7 +36,7 @@ jobs:
             set -e  # остановить скрипт при любой ошибке
 
             echo "=== Starting deployment ==="
-            cd ~/taskflow
+            cd ~/kanban
 
             echo "=== Pulling latest changes ==="
             git pull origin main

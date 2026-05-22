@@ -4,8 +4,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "paths": {
-      "@taskflow/shared-types": ["../../packages/shared-types/src/index.ts"],
-      "@taskflow/database": ["../../packages/database/src/index.ts"]
+      "@kanban/shared-types": ["../../packages/shared-types/src/index.ts"],
+      "@kanban/database": ["../../packages/database/src/index.ts"]
     }
   },
   "include": ["src/**/*"],

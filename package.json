@@ -24,9 +24,9 @@
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
-    "db:generate": "pnpm --filter @taskflow/database prisma generate",
-    "db:migrate": "pnpm --filter @taskflow/database prisma migrate dev",
-    "db:studio": "pnpm --filter @taskflow/database prisma studio"
+    "db:generate": "pnpm --filter @kanban/database prisma generate",
+    "db:migrate": "pnpm --filter @kanban/database prisma migrate dev",
+    "db:studio": "pnpm --filter @kanban/database prisma studio"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

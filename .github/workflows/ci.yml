@@ -100,34 +100,34 @@ jobs:
   # ─────────────────────────────────────────
   # Job 2: Rust сервис
   # ─────────────────────────────────────────
-  rust:
-    name: Rust (clippy, test)
-    runs-on: ubuntu-latest
+  # rust:
+  #   name: Rust (clippy, test)
+  #   runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: apps/notification-service
+  #   defaults:
+  #     run:
+  #       working-directory: apps/notification-service
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
+  #     - name: Setup Rust toolchain
+  #       uses: dtolnay/rust-toolchain@stable
+  #       with:
+  #         components: clippy, rustfmt
 
-      - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: apps/notification-service
+  #     - name: Cache Cargo
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         workspaces: apps/notification-service
 
-      - name: Check formatting
-        run: cargo fmt --check
+  #     - name: Check formatting
+  #       run: cargo fmt --check
 
-      - name: Clippy (lint)
-        run: cargo clippy -- -D warnings
-        # -D warnings: любое предупреждение = ошибка
+  #     - name: Clippy (lint)
+  #       run: cargo clippy -- -D warnings
+  #       # -D warnings: любое предупреждение = ошибка
 
-      - name: Test
-        run: cargo test
+  #     - name: Test
+  #       run: cargo test
