@@ -86,9 +86,13 @@ jobs:
 
       # - name: Lint
       #   run: pnpm lint
+
+      - name: Generate Prisma Client
+        run: pnpm --filter @kanban/database prisma:generate
+      - name: Build workspace packages
+        run: pnpm --filter @kanban/database build
       - name: Type check
         run: pnpm -r typecheck
-        # -r = recursive, запускает во всех пакетах
 
       - name: Build
         run: pnpm build

@@ -2,11 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "paths": {
-      "@kanban/shared-types": ["../../packages/shared-types/src/index.ts"],
-      "@kanban/database": ["../../packages/database/src/index.ts"]
-    }
+    "rootDir": "./src"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
