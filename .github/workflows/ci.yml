@@ -1,0 +1,133 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main] # тоже запускаем на push в main, не только на PR
+
+concurrency:
+  # Если открыт новый PR пока старый CI ещё бежит — отменяем старый
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────
+  # Job 1: TypeScript сервисы
+  # ─────────────────────────────────────────
+  typescript:
+    name: TypeScript (lint, build, test)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: kanban
+          POSTGRES_PASSWORD: kanban
+          POSTGRES_DB: kanban
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # Переменные окружения для тестов
+      AUTH_DATABASE_URL: postgresql://kanban:testpassword@localhost:5432/kanban_auth_test
+      TASKS_DATABASE_URL: postgresql://kanban:testpassword@localhost:5432/kanban_tasks_test
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: test-access-secret-for-ci-only
+      JWT_REFRESH_SECRET: test-refresh-secret-for-ci-only
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm # кэшируем node_modules между запусками
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        # --frozen-lockfile: не обновлять lockfile, упасть если он устарел
+
+      - name: Create test databases
+        run: |
+          PGPASSWORD=testpassword psql -h localhost -U kanban -c "CREATE DATABASE kanban_auth_test;"
+          PGPASSWORD=testpassword psql -h localhost -U kanban -c "CREATE DATABASE kanban_tasks_test;"
+
+      - name: Run Prisma migrations (test databases)
+        run: |
+          pnpm --filter @kanban/database prisma migrate deploy
+        env:
+          DATABASE_URL: ${{ env.AUTH_DATABASE_URL }}
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm -r typecheck
+        # -r = recursive, запускает во всех пакетах
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  # ─────────────────────────────────────────
+  # Job 2: Rust сервис
+  # ─────────────────────────────────────────
+  rust:
+    name: Rust (clippy, test)
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/notification-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/notification-service
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Clippy (lint)
+        run: cargo clippy -- -D warnings
+        # -D warnings: любое предупреждение = ошибка
+
+      - name: Test
+        run: cargo test

@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+# Только один деплой одновременно
+# Если пришёл второй push пока деплоится первый — ждём, не отменяем
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    # Запускаем деплой только если CI прошёл
+    needs: [] # сюда добавишь needs: [typescript, rust] когда CI будет в том же файле
+      # или настроишь через environment protection rules в GitHub
+
+    environment:
+      name: production
+      url: https://139.100.205.119 # GitHub покажет ссылку прямо в интерфейсе PR
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e  # остановить скрипт при любой ошибке
+
+            echo "=== Starting deployment ==="
+            cd ~/taskflow
+
+            echo "=== Pulling latest changes ==="
+            git pull origin main
+
+            echo "=== Building and starting services ==="
+            docker compose -f infrastructure/docker-compose.prod.yml up -d --build
+
+            echo "=== Waiting for services to be healthy ==="
+            sleep 10
+
+            echo "=== Checking service health ==="
+            docker compose -f infrastructure/docker-compose.prod.yml ps
+
+            echo "=== Cleaning up old images ==="
+            docker image prune -f
+
+            echo "=== Deployment complete ==="
