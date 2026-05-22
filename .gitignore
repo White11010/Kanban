@@ -1,6 +1,7 @@
 node_modules/
 .node_modules/
 .env
+apps/*/.env
 dist
 target
 **/.vscode/*
