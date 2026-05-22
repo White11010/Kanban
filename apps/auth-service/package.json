@@ -9,7 +9,6 @@
     "start": "node --env-file=.env dist/index.js",
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
     "lint": "eslint src"
   },
   "dependencies": {
