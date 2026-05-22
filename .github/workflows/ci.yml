@@ -4,10 +4,9 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main] # тоже запускаем на push в main, не только на PR
+    branches: [main]
 
 concurrency:
-  # Если открыт новый PR пока старый CI ещё бежит — отменяем старый
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -67,11 +66,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm # кэшируем node_modules между запусками
+          cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-        # --frozen-lockfile: не обновлять lockfile, упасть если он устарел
 
       - name: Create test databases
         run: |
@@ -138,8 +136,8 @@ jobs:
   deploy:
     name: Deploy to production
     runs-on: ubuntu-latest
-    needs: [typescript] # ← ждёт typescript job
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # ← только на push в main, не на PR
+    needs: [typescript]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     environment:
       name: production
