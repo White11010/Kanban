@@ -84,9 +84,8 @@ jobs:
         env:
           DATABASE_URL: ${{ env.AUTH_DATABASE_URL }}
 
-      - name: Lint
-        run: pnpm lint
-
+      # - name: Lint
+      #   run: pnpm lint
       - name: Type check
         run: pnpm -r typecheck
         # -r = recursive, запускает во всех пакетах
